@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         LinkedIn: Blind Reviews + Levels SWE (Per-level Totals)
+// @name         Linkedin Company Insights
 // @namespace    yanxi-tools
-// @version      1.0
+// @version      1.1
 // @description  Show Blind company review score (headline) and Levels.fyi SWE (US) per-level average total compensation on LinkedIn jobs/company pages.
 // @author       your-name
 // @match        https://www.linkedin.com/*
