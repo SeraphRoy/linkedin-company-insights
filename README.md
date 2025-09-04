@@ -30,8 +30,7 @@ This saves you from opening multiple tabs to check a company’s reputation and 
    - [Tampermonkey](https://www.tampermonkey.net/) (Chrome/Edge/Firefox recommended)  
    - or Violentmonkey / Greasemonkey.
 2. Install the script:
-   - **Greasy Fork:** [link once published]  
-   - **GitHub:** [raw userscript link once in repo]
+   - **Greasy Fork:** [Linkedin Company Insights](https://greasyfork.org/en/scripts/548292-linkedin-company-insights)
 
 Once installed, visit any LinkedIn job or company page — the **Company Insights** panel appears in the bottom-right corner.
 
