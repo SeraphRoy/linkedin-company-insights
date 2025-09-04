@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Linkedin Company Insights
 // @namespace    yanxi-tools
-// @version      1.2
+// @version      1.3
 // @description  Show Blind company review score (headline) and Levels.fyi SWE (US) per-level average total compensation on LinkedIn jobs/company pages.
 // @author       your-name
 // @match        https://www.linkedin.com/*
@@ -24,23 +24,26 @@
 
   // ---------- Styles ----------
   GM_addStyle(`
-    #lii-panel{position:fixed;right:16px;bottom:16px;z-index:2147483647;background:#fff;border:1px solid #e3e3e3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);font:13px system-ui;min-width:320px;max-width:460px;user-select:none}
+    #lii-panel{position:fixed;right:16px;bottom:16px;z-index:2147483647;background:#fff;border:1px solid #e3e3e3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);font:13px system-ui;min-width:250px;max-width:600px;width:380px;min-height:200px;max-height:600px;height:300px;display:flex;flex-direction:column;resize:both;overflow:hidden}
+    #lii-panel.collapsed{height:auto!important;min-height:auto;resize:none}
     #lii-panel.collapsed #lii-bd{display:none}
     #lii-panel.dragging{opacity:0.8}
-    #lii-hd{padding:10px 12px;border-bottom:1px solid #eee;font-weight:700;display:flex;justify-content:space-between;align-items:center;cursor:move;background:#fafbff}
+    #lii-hd{padding:10px 12px;border-bottom:1px solid #eee;font-weight:700;display:flex;justify-content:space-between;align-items:center;cursor:move;background:#fafbff;flex-shrink:0;user-select:none}
     #lii-hd:hover{background:#f0f5ff}
     #lii-panel.collapsed #lii-hd{border-bottom:none}
-    #lii-bd{padding:10px 12px}
-    #lii-meta{color:#666;font-size:12px;margin-top:6px}
-    .pill{background:#f3f7fe;border-radius:999px;padding:2px 8px;font-weight:600}
+    #lii-bd{padding:10px 12px;overflow-y:auto;flex:1;user-select:text}
+    #lii-meta{color:#666;font-size:12px;margin-top:6px;user-select:text}
+    .pill{background:#f3f7fe;border-radius:999px;padding:2px 8px;font-weight:600;user-select:text}
     .row{display:flex;justify-content:space-between;align-items:center;margin:4px 0;gap:8px}
     .link{color:#0a66c2;text-decoration:none}
     table.lii{width:100%;border-collapse:collapse;margin-top:6px}
-    table.lii th, table.lii td{padding:6px 8px;border-bottom:1px solid #f0f0f0;text-align:left}
+    table.lii th, table.lii td{padding:6px 8px;border-bottom:1px solid #f0f0f0;text-align:left;user-select:text}
     table.lii th{font-weight:600;background:#fafbff}
     .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace}
-    #lii-toggle{cursor:pointer;font-size:12px;margin-left:8px}
+    #lii-toggle{cursor:pointer;font-size:12px;margin-left:8px;user-select:none}
     #lii-toggle:hover{color:#0a66c2}
+    #lii-resize-handle{position:absolute;bottom:0;right:0;width:20px;height:20px;cursor:nw-resize;background:linear-gradient(-45deg,transparent 30%,#ccc 30%,#ccc 35%,transparent 35%,transparent 45%,#ccc 45%,#ccc 50%,transparent 50%);border-radius:0 0 12px 0}
+    #lii-panel.collapsed #lii-resize-handle{display:none}
   `);
 
   // ---------- Panel ----------
