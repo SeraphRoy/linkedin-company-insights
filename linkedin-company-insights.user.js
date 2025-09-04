@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Linkedin Company Insights
 // @namespace    yanxi-tools
-// @version      1.1
+// @version      1.2
 // @description  Show Blind company review score (headline) and Levels.fyi SWE (US) per-level average total compensation on LinkedIn jobs/company pages.
 // @author       your-name
 // @match        https://www.linkedin.com/*
@@ -24,8 +24,12 @@
 
   // ---------- Styles ----------
   GM_addStyle(`
-    #lii-panel{position:fixed;right:16px;bottom:16px;z-index:2147483647;background:#fff;border:1px solid #e3e3e3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);font:13px system-ui;min-width:320px;max-width:460px}
-    #lii-hd{padding:10px 12px;border-bottom:1px solid #eee;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+    #lii-panel{position:fixed;right:16px;bottom:16px;z-index:2147483647;background:#fff;border:1px solid #e3e3e3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);font:13px system-ui;min-width:320px;max-width:460px;user-select:none}
+    #lii-panel.collapsed #lii-bd{display:none}
+    #lii-panel.dragging{opacity:0.8}
+    #lii-hd{padding:10px 12px;border-bottom:1px solid #eee;font-weight:700;display:flex;justify-content:space-between;align-items:center;cursor:move;background:#fafbff}
+    #lii-hd:hover{background:#f0f5ff}
+    #lii-panel.collapsed #lii-hd{border-bottom:none}
     #lii-bd{padding:10px 12px}
     #lii-meta{color:#666;font-size:12px;margin-top:6px}
     .pill{background:#f3f7fe;border-radius:999px;padding:2px 8px;font-weight:600}
@@ -35,6 +39,8 @@
     table.lii th, table.lii td{padding:6px 8px;border-bottom:1px solid #f0f0f0;text-align:left}
     table.lii th{font-weight:600;background:#fafbff}
     .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace}
+    #lii-toggle{cursor:pointer;font-size:12px;margin-left:8px}
+    #lii-toggle:hover{color:#0a66c2}
   `);
 
   // ---------- Panel ----------
@@ -51,14 +57,13 @@
     const hspan = document.createElement('span');
     hspan.textContent = 'Company insights';
 
-    const close = document.createElement('a');
-    close.href = 'javascript:';
-    close.className = 'link';
-    close.id = 'lii-close';
-    close.textContent = 'hide';
+    const toggle = document.createElement('span');
+    toggle.id = 'lii-toggle';
+    toggle.textContent = '−';
+    toggle.title = 'Collapse/Expand panel';
 
     hd.appendChild(hspan);
-    hd.appendChild(close);
+    hd.appendChild(toggle);
 
     const bd = document.createElement('div');
     bd.id = 'lii-bd';
@@ -77,7 +82,44 @@
     p.appendChild(bd);
     document.body.appendChild(p);
 
-    close.addEventListener('click', ()=>p.remove());
+    // Toggle functionality
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      p.classList.toggle('collapsed');
+      toggle.textContent = p.classList.contains('collapsed') ? '+' : '−';
+    });
+
+    // Drag functionality
+    let isDragging = false;
+    let dragOffset = { x: 0, y: 0 };
+    
+    hd.addEventListener('mousedown', (e) => {
+      if (e.target === toggle) return;
+      isDragging = true;
+      p.classList.add('dragging');
+      const rect = p.getBoundingClientRect();
+      dragOffset.x = e.clientX - rect.left;
+      dragOffset.y = e.clientY - rect.top;
+      e.preventDefault();
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const x = e.clientX - dragOffset.x;
+      const y = e.clientY - dragOffset.y;
+      p.style.left = Math.max(0, Math.min(window.innerWidth - p.offsetWidth, x)) + 'px';
+      p.style.top = Math.max(0, Math.min(window.innerHeight - p.offsetHeight, y)) + 'px';
+      p.style.right = 'auto';
+      p.style.bottom = 'auto';
+    });
+    
+    document.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        p.classList.remove('dragging');
+      }
+    });
+
     return p;
   }
   ensurePanel();
