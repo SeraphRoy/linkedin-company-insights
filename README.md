@@ -65,7 +65,7 @@ No analytics, no external libraries, no tracking.
 
 ## 🗺 Roadmap
 
-- [ ] Drag-to-move or pin the panel left/right.  
+- [x] ~~Drag-to-move or pin the panel left/right~~ ✅ **Done in v1.2**
 - [ ] Cache results in `localStorage` for faster navigation.  
 - [ ] Support other roles (e.g., PM, DS) from Levels.fyi.  
 - [ ] Enhance Blind parsing when logged-in APIs are available.
@@ -79,6 +79,15 @@ No analytics, no external libraries, no tracking.
 ---
 
 ## 🔄 Changelog
+
+### 1.2
+- ✨ **Movable panel** - Click and drag the header to move the panel anywhere on screen
+- ✨ **Collapsible panel** - Toggle button (−/+) to collapse/expand the panel
+- 🎨 Improved UI with hover effects and better visual feedback
+- 🐛 Panel stays within browser window bounds when dragged
+
+### 1.1
+- Minor improvements and bug fixes
 
 ### 1.0
 - Initial release
