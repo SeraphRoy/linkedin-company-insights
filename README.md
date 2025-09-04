@@ -80,6 +80,12 @@ No analytics, no external libraries, no tracking.
 
 ## 🔄 Changelog
 
+### 1.3
+- ✨ **Resizable panel** - Resize both horizontally and vertically to fit your needs
+- ✨ **Scrollable content** - Handle companies with many salary levels (like Microsoft)
+- ✨ **Copiable text** - Select and copy company data, ratings, and salary information
+- 🎨 Flexible sizing: min 250px-600px width, 200px-600px height
+
 ### 1.2
 - ✨ **Movable panel** - Click and drag the header to move the panel anywhere on screen
 - ✨ **Collapsible panel** - Toggle button (−/+) to collapse/expand the panel
