@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Linkedin Company Insights
 // @namespace    yanxi-tools
-// @version      1.3
+// @version      1.4
 // @description  Show Blind company review score (headline) and Levels.fyi SWE (US) per-level average total compensation on LinkedIn jobs/company pages.
 // @author       your-name
 // @match        https://www.linkedin.com/*
@@ -129,6 +129,30 @@
 
   const $ = (id)=>document.getElementById(id);
   const setHTML = (id, html)=>{ const el=$(id); if (el) el.innerHTML=html; };
+
+  // ---------- Company Name Mapping ----------
+  const COMPANY_MAPPINGS = {
+    // LinkedIn name -> { blind: 'blind name', levels: 'levels name' }
+    // Verified mappings:
+    'square': { blind: 'block', levels: 'block' },
+    'meta': { blind: 'meta', levels: 'facebook' },
+    'alphabet': { blind: 'google', levels: 'google' },
+    'x': { blind: 'x', levels: 'twitter' },
+    'paypal': { blind: 'paypal', levels: 'paypal' },
+    // Add more mappings as needed
+  };
+
+  function getCompanyName(originalName, platform) {
+    const normalized = originalName.toLowerCase().trim();
+    const mapping = COMPANY_MAPPINGS[normalized];
+    
+    if (mapping && mapping[platform]) {
+      log(`Company mapping: ${originalName} -> ${mapping[platform]} (${platform})`);
+      return mapping[platform];
+    }
+    
+    return originalName;
+  }
 
   // ---------- Utils ----------
   function sanitize(name){
@@ -293,13 +317,14 @@
   }
 
   async function fetchBlind(companyName){
+    const mappedName = getCompanyName(companyName, 'blind');
     const candidates = (slug) => [
       `https://www.teamblind.com/company/${slug}`,
       `https://www.teamblind.com/company/${slug}/posts`,
       `https://www.teamblind.com/company/${slug}/jobs`,
     ];
 
-    let slug = slugifyCompany(companyName);
+    let slug = slugifyCompany(mappedName);
 
     // Try guessed slug
     for (const url of candidates(slug)){
@@ -318,7 +343,7 @@
     }
 
     // Resolve via search, retry
-    const resolved = await resolveCompanySlug(companyName);
+    const resolved = await resolveCompanySlug(mappedName);
     if (resolved && resolved !== slug){
       slug = resolved;
       for (const url of candidates(slug)){
@@ -384,8 +409,9 @@
   }
 
   async function fetchLevelsPerLevel(company){
+    const mappedName = getCompanyName(company, 'levels');
     const base='https://www.levels.fyi/companies';
-    for (const slug of levelsSlugs(company)){
+    for (const slug of levelsSlugs(mappedName)){
       const url = `${base}/${encodeURIComponent(slug)}/salaries/software-engineer?country=254`;
       try{
         const res = await gmFetch(url);

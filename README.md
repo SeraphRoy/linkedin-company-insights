@@ -51,8 +51,9 @@ No analytics, no external libraries, no tracking.
 ## ⚠️ Notes
 
 - **Blind subcategory scores (Career Growth, Compensation, WLB, etc.) are not exposed publicly** unless logged in, so the script shows only the headline rating + review count.
-- If Blind shows `n/a`, try opening the company’s Blind page directly to verify it has a public rating.
+- If Blind shows `n/a`, try opening the company's Blind page directly to verify it has a public rating.
 - Some companies on Levels.fyi may have missing or incomplete SWE salary data.
+- **Company name mapping**: The script automatically handles companies with different names across platforms (e.g., Square on LinkedIn becomes Block on Blind/Levels.fyi).
 
 ---
 
@@ -79,6 +80,12 @@ No analytics, no external libraries, no tracking.
 ---
 
 ## 🔄 Changelog
+
+### 1.4
+- ✨ **Company name mapping** - Handles companies with different names across platforms
+- 🔧 Automatically maps LinkedIn company names to their correct names on Blind and Levels.fyi
+- ✅ **Verified mappings**: Square→Block, Meta→Facebook (Levels), Alphabet→Google, X→Twitter (Levels), PayPal→PayPal
+- 🚀 Improved data accuracy for renamed/rebranded companies
 
 ### 1.3
 - ✨ **Resizable panel** - Resize both horizontally and vertically to fit your needs
