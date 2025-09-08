@@ -81,6 +81,13 @@ No analytics, no external libraries, no tracking.
 
 ## 🔄 Changelog
 
+### 1.5
+- ✨ **Sticky panel state** - Position, size, and collapsed state now persist across sessions
+- 💾 **localStorage persistence** - Panel remembers where you positioned it, your preferred size, and expand/collapse state
+- 🎯 **Smart positioning** - Validates saved positions are still on-screen after browser/screen changes
+- 📱 **Automatic saving** - Saves state when dragging, resizing, or toggling collapse
+- 🔄 **Seamless experience** - Set your preferences once, they stick forever
+
 ### 1.4
 - ✨ **Company name mapping** - Handles companies with different names across platforms
 - 🔧 Automatically maps LinkedIn company names to their correct names on Blind and Levels.fyi

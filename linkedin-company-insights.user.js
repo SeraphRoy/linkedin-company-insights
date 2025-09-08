@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Linkedin Company Insights
 // @namespace    yanxi-tools
-// @version      1.4
+// @version      1.5
 // @description  Show Blind company review score (headline) and Levels.fyi SWE (US) per-level average total compensation on LinkedIn jobs/company pages.
 // @author       your-name
 // @match        https://www.linkedin.com/*
@@ -24,7 +24,7 @@
 
   // ---------- Styles ----------
   GM_addStyle(`
-    #lii-panel{position:fixed;right:16px;bottom:16px;z-index:2147483647;background:#fff;border:1px solid #e3e3e3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);font:13px system-ui;min-width:250px;max-width:600px;width:380px;min-height:200px;max-height:600px;height:300px;display:flex;flex-direction:column;resize:both;overflow:hidden}
+    #lii-panel{position:fixed;z-index:2147483647;background:#fff;border:1px solid #e3e3e3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);font:13px system-ui;min-width:250px;max-width:600px;width:380px;min-height:200px;max-height:600px;height:300px;display:flex;flex-direction:column;resize:both;overflow:hidden}
     #lii-panel.collapsed{height:auto!important;min-height:auto;resize:none}
     #lii-panel.collapsed #lii-bd{display:none}
     #lii-panel.dragging{opacity:0.8}
@@ -46,10 +46,75 @@
     #lii-panel.collapsed #lii-resize-handle{display:none}
   `);
 
+  // ---------- Panel State Persistence ----------
+  const STORAGE_KEY = 'lii-panel-state';
+  
+  function savePanelState() {
+    const panel = document.getElementById('lii-panel');
+    if (!panel) return;
+    
+    const state = {
+      position: {},
+      size: {
+        width: panel.offsetWidth,
+        height: panel.offsetHeight
+      },
+      collapsed: panel.classList.contains('collapsed')
+    };
+    
+    // Save position based on current style
+    if (panel.style.left && panel.style.top) {
+      state.position = {
+        left: parseInt(panel.style.left),
+        top: parseInt(panel.style.top)
+      };
+    } else {
+      // Default bottom-right position
+      state.position = { right: 16, bottom: 16 };
+    }
+    
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      log('Panel state saved:', state);
+    } catch (e) {
+      warn('Failed to save panel state:', e);
+    }
+  }
+  
+  function loadPanelState() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return null;
+      
+      const state = JSON.parse(saved);
+      
+      // Validate saved position is within viewport
+      if (state.position.left !== undefined && state.position.top !== undefined) {
+        const maxX = window.innerWidth - (state.size.width || 250);
+        const maxY = window.innerHeight - (state.size.height || 200);
+        
+        if (state.position.left < 0 || state.position.left > maxX ||
+            state.position.top < 0 || state.position.top > maxY) {
+          log('Saved position is off-screen, using default');
+          return null;
+        }
+      }
+      
+      log('Panel state loaded:', state);
+      return state;
+    } catch (e) {
+      warn('Failed to load panel state:', e);
+      return null;
+    }
+  }
+
   // ---------- Panel ----------
   function ensurePanel(){
     let p = document.querySelector('#lii-panel');
     if (p) return p;
+
+    // Load saved state
+    const savedState = loadPanelState();
 
     p = document.createElement('div');
     p.id = 'lii-panel';
@@ -85,11 +150,41 @@
     p.appendChild(bd);
     document.body.appendChild(p);
 
+    // Apply saved state or defaults
+    if (savedState) {
+      // Apply saved size
+      if (savedState.size.width) p.style.width = savedState.size.width + 'px';
+      if (savedState.size.height) p.style.height = savedState.size.height + 'px';
+      
+      // Apply saved position
+      if (savedState.position.left !== undefined && savedState.position.top !== undefined) {
+        p.style.left = savedState.position.left + 'px';
+        p.style.top = savedState.position.top + 'px';
+        p.style.right = 'auto';
+        p.style.bottom = 'auto';
+      } else {
+        // Default position
+        p.style.right = '16px';
+        p.style.bottom = '16px';
+      }
+      
+      // Apply saved collapsed state
+      if (savedState.collapsed) {
+        p.classList.add('collapsed');
+        toggle.textContent = '+';
+      }
+    } else {
+      // Default position for first time users
+      p.style.right = '16px';
+      p.style.bottom = '16px';
+    }
+
     // Toggle functionality
     toggle.addEventListener('click', (e) => {
       e.stopPropagation();
       p.classList.toggle('collapsed');
       toggle.textContent = p.classList.contains('collapsed') ? '+' : '−';
+      savePanelState(); // Save state when toggling
     });
 
     // Drag functionality
@@ -120,8 +215,22 @@
       if (isDragging) {
         isDragging = false;
         p.classList.remove('dragging');
+        savePanelState(); // Save state when dragging ends
       }
     });
+
+    // ResizeObserver to save state when panel is resized
+    if (window.ResizeObserver) {
+      let resizeTimeout;
+      const resizeObserver = new ResizeObserver(() => {
+        // Debounce resize saves to avoid excessive localStorage writes
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          savePanelState();
+        }, 300); // Wait 300ms after resize ends
+      });
+      resizeObserver.observe(p);
+    }
 
     return p;
   }
